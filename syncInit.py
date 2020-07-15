@@ -5,7 +5,8 @@
 @File:      syncInit.py
 @Author:    Jim.Dai.Cn
 @Date:      2020/6/30 上午9:53
-@Desc:      1. 清空mysql.user_info表 2. 把oracle 表的所有数据逐条构造成 op_type = "I" after={} 丢入队列
+@Desc:      1. 清空mysql.user_info表
+@Desc:      2. 把oracle 表的所有数据逐条构造成 op_type = "I" after={} 丢入队列
 """
 import sys
 
@@ -29,9 +30,7 @@ def main():
         opt = sys.argv[1]
         table_name = sys.argv[2]
         if opt == 'forceDrop':
-            # getattr(d, arg)()
             if ask_for_confirm('FBI WARNING!\r\n警告！继续执行将会清空MySQL数据，是否确定继续? \r\n(y/n)'):
-                # todo: - clear togg msg in kafka
                 force_drop(table_name)
         elif opt == 'insertAll':
             insert_all(table_name)
@@ -82,14 +81,9 @@ def insert_all(table_name):
     for i in range(1, total + 1, 10):
         dic = ora.p(table_name, i, i + 10)
         inserter.run(dic)
-    # arr = json.loads(dic)
-    # print(type(arr))
     ora.c()
     inserter.close()
-    #
-    #
 
 
 if __name__ == '__main__':
     main()
-    # insert_all()
