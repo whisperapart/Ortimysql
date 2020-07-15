@@ -1,13 +1,15 @@
-# PolicyAnalyze
-<p>
-A sample daemon program for realtime-synchronizing from oracle to mysql.<br>
-Python/ Kafka / oracle / mysql / realtime data sync<br>
-Supports dynamic/custom table/columns with different data types.
-</p>
-<p>
-Oracle 数据实时同步至 Mysql，实现不同表不同字段不同类型的映射。<br>
-启动为守护进程。
-</p>
+# Oracle Real TIme to MYSQL
+## description 
+ - A daemon program for realtime-synchronizing from oracle to mysql
+ - Python/ Kafka / oracle / mysql / realtime data sync
+ - Supports dynamic/custom table/columns with different data types
+ - Write convert rules in JDConvert.py
+<p>中文表述</p>
+
+ - Oracle 数据实时同步至 Mysql
+ - 实现不同表不同字段不同类型的映射
+ - 启动为守护进程
+ - 需要自定义转换规则
 
 ## usage
 1. prerequisite : [oracle_to_kafka](./Docs/oggKafka.md)
@@ -22,7 +24,7 @@ Usage: python filename.py [option]
 	 forceInit 	redo queue
 ```
 
-2. - optional run syncInit.py to send all oracle table-data into kafka
+1. **optional** run syncInit.py to send all oracle table-data into kafka
 ```bash
 $ python syncInit.py 
 Usage: python syncInit.py [option] <table_name>
@@ -30,7 +32,7 @@ Usage: python syncInit.py [option] <table_name>
 	 insertAll 		Insert all rows from oracle to kafka
 ```
 
-3. - optional run util_compile.py to get a executable release
+1. **optional** run util_compile.py to get a executable release
 ```bash
 $ python util_compile.py
 ```

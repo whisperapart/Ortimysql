@@ -8,6 +8,18 @@
 |OGG| OGG 12.1.2.1.0 for 11.2 | OGG bd	12.3.2.1.1 |
 |Kafka| - | Kafka_2.11-2.4.0 |
 
+### flow
+
+```flow
+st=>start: 开始
+op=>operation: My Operation
+cond=>condition: Yes or No?
+e=>end
+st->op->cond
+cond(yes)->e
+cond(no)->op
+```
+
 ## 1. source - oracle - install ogg 
 - pre-installed oracle version: oracle 11.2
 - ogg installation path: /opt/ogg
