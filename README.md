@@ -10,8 +10,9 @@ Oracle 数据实时同步至 Mysql，实现不同表不同字段不同类型的�
 </p>
 
 ## usage
+1. prerequisite : [oracle_to_kafka](./Docs/oggKafka.md)
 1. run o2m.py to consume message from kafka
-```shell script
+```bash
 $ python o2m.py
 Usage: python filename.py [option]
 	 start 		start daemon
@@ -21,16 +22,16 @@ Usage: python filename.py [option]
 	 forceInit 	redo queue
 ```
 
-2. [optional] run syncInit.py to send all oracle table-data into kafka
-```shell script
+2. - optional run syncInit.py to send all oracle table-data into kafka
+```bash
 $ python syncInit.py 
 Usage: python syncInit.py [option] <table_name>
 	 forceDrop 		Force to DROP MySQL Table
 	 insertAll 		Insert all rows from oracle to kafka
 ```
 
-3. [optional] run util_compile.py to get a executable release
-```shell script
+3. - optional run util_compile.py to get a executable release
+```bash
 $ python util_compile.py
 ```
 

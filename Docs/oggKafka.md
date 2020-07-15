@@ -1,3 +1,5 @@
+# Ogg to Kafka
+## 0. environments
 |items| Source | Destination |
 |:----|:----|----:|
 |IP|192.168.1.88|192.168.1.157|
@@ -13,17 +15,18 @@
 1. mkdir -p /opt/ogg
 1. chown -R oracle:oinstall /opt/ogg
 1. vi /etc/profile
-```
+```bash
 export OGG_HOME=/opt/ogg
 export LD_LIBRARY_PATH=$ORACLE_HOME/lib:/usr/lib
 export PATH=$OGG_HOME:$PATH
 ```
+
 1. source /etc/profile
 1. su - oracle
 1. sqlplus / as sysdba
 1. archive log list
 1. == if not ==
-```
+```bash
 SQL> conn / as sysdba(以DBA身份连接数据库) 
 SQL> shutdown immediate(立即关闭数据库)
 SQL> startup mount(启动实例并加载数据库，但不打开)
@@ -38,7 +41,7 @@ YES
 ```
 
 1. select force_logging, supplemental_log_data_min from v$database;
-```
+```bash
 SQL> alter database force logging;
 SQL> alter database add supplemental log data;
 SQL> create tablespace oggtbs datafile '/usr/local/u01/oracle/oradata/oggtbs01.dbf' size 1000M autoextend on;
@@ -54,7 +57,7 @@ select * from dba_sys_privs where GRANTEE='OGG';
 1. cd /opt/ogg
 1. ./ggsci
 1. create subdirs
-```
+```bash
 SQL> conn wuxihuishan_yutiaoshi/123456;
 Connected.
 
@@ -128,6 +131,7 @@ table wuxihuishan_yutiaoshi.MANAG_USER;
 table wuxihuishan_yutiaoshi.UPMS_ORGANIZATION;
 table wuxihuishan_yutiaoshi.UPMS_USER_ORGANIZATION;
 ```
+
 1. cd /opt/ogg
 1. ./defgen paramfile dirprm/hs.prm
 1. Definitions generated for 1 table in /opt/ogg/dirdef/WUXIHUISHAN_YUTIAOSHI.USER_INFO.
@@ -139,13 +143,14 @@ table wuxihuishan_yutiaoshi.UPMS_USER_ORGANIZATION;
 install openJDK set JAVA_HOME
 
 vi /etc/profile
-```
+```bash
 export OGG_HOME=/data/gg
 export LD_LIBRARY_PATH=$JAVA_HOME/jre/lib/amd64:$JAVA_HOME/jre/lib/amd64/server:$JAVA_HOME/jre/lib/amd64/libjsig.so:$JAVA_HOME/jre/lib/amd64/server/libjvm.so:$OGG_HOME/lib
 export PATH=$OGG_HOME:$PATH
 ```
+
 ggsci
-```
+```bash
 create subdirs
 edit params mgr
 PORT 7809
@@ -164,10 +169,10 @@ REPORTCOUNT EVERY 1 MINUTES, RATE
 GROUPTRANSOPS 10000
 MAP WUXIHUISHAN_YUTIAOSHI.*, TARGET WUXIHUISHAN_YUTIAOSHI.*;
 
+```
 
-```
 vi rekafka.prm
-```
+```bash
 gg.handlerlist=kafkahandler
 gg.handler.kafkahandler.type=kafka
 gg.handler.kafkahandler.KafkaProducerConfigFile=custom_kafka_producer.properties
@@ -177,8 +182,9 @@ gg.handler.kafkahandler.mode=tx
 gg.handler.kafkahandler.format.includePrimaryKeys=true
 gg.classpath=dirprm/:/opt/module/kafka_2.11-2.4.0/libs/*:/data/gg/:/data/gg/lib/*
 ```
+
 vi custom_kafka_producer.properties
-```
+```bash
 bootstrap.servers=192.168.1.157:9092
 acks=1
 compression.type=gzip
@@ -188,6 +194,7 @@ key.serializer=org.apache.kafka.common.serialization.ByteArraySerializer
 batch.size=102400
 linger.ms=10000
 ```
+
 add replicat rekafka exttrail /data/gg/dirdat/hs,checkpointtable WUXIHUISHAN_YUTIAOSHI.checkpoint
 
 
@@ -208,7 +215,7 @@ bin/kafka-console-producer.sh --broker-list localhost:9092 --topic test
 cd /lib/systemd/system/ 
 vim zookeeper.service 
 
-```
+```bash
 [Unit]
 Description=Zookeeper service
 After=network.target
@@ -229,7 +236,7 @@ WantedBy=multi-user.target
 
 vim kafka.service 
 
-```
+```bash
 Description=Apache Kafka server (broker)
 After=network.target  zookeeper.service
 
@@ -264,7 +271,9 @@ zookeeper、kafka服务加入开机自启。 
  # systemctl start kafka
  ```
 
-
-
+### 常用kafka命令
 ./bin/kafka-topics.sh --delete --bootstrap-server 192.168.1.157:9092 --topic togg
 /opt/module/kafka_2.11-2.4.0/bin/kafka-run-class.sh kafka.tools.GetOffsetShell --broker-list 192.168.1.157:9092 --topic togg
+bin/kafka-console-consumer.sh --bootstrap-server 192.168.1.157:9092 --topic togg --from-beginning
+bin/kafka-topics.sh --list --bootstrap-server localhost:9092
+bin/kafka-console-producer.sh --broker-list localhost:9092 --topic test
