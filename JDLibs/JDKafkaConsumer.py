@@ -84,12 +84,7 @@ def run_user_field_value(message):
         print('intercept catch, not in watch list, ignoring...')
         return ret
 
-    d = message.value['after'] if message.value['op_type'] != 'D' else message.value['before']
-    if isinstance(d, dict):
-        d = json.dumps(d)
-    d = json.loads(d)
     data = ''
-
     # print("==== converting \n")
     if intercept == 'financial':
         tableName = JDConfig.mysql_table['financial']
