@@ -24,7 +24,6 @@ class JDKFKCDaemon(Daemon):
             time.sleep(0.3)
 
     def stop(self):
-        # self.com.close()
         super(JDKFKCDaemon, self).stop()
 
     def status(self):
