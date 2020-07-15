@@ -25,29 +25,17 @@ class JDCMySQL:
 
     def i(self, table_name, data):
         k = ",".join(data.keys())
-        # t = list(data.values())
         v = ','.join('%s' % i for i in list(data.values()))
-        # print(data)
-        # xdata = data;
-        # xdata.pop('id')
-        # motherfucker = ''
-        # for key, value in data.items():
-        #     motherfucker += ('{key}={value},'.format(key=key, value=value))
-        # motherfucker = motherfucker[0: len(motherfucker)-1]
-        # print(motherfucker)
-
-        # sql = "INSERT INTO %s (%s) VALUES (%s) ON DUPLICATE KEY UPDATE %s" % (JDConfig.mysql_table_user_info, k, v, motherfucker)
         sql = "REPLACE INTO %s (%s) VALUES (%s)" % (table_name, k, v)
         print("\n%s\n" % sql)
         try:
             self.cursor.execute(sql)
             self.db.commit()
-            # print('ID = %s insert or update done.' % data['id'])
             return 1
         except:
             self.db.rollback()
-            f = open("./errlog.txt", "a")
             print('ID = %s insert or update fail.' % data['id'])
+            f = open("./errlog.txt", "a")
             print('ID = %s insert or update fail.\nsql=\n%s\ndata=%s\n' % (data['id'], sql, data), file=f)
             f.close()
             return 0
@@ -60,18 +48,18 @@ class JDCMySQL:
         try:
             self.cursor.execute(sql)
             self.db.commit()
-            # print('ID = %s delete done.' % data['id'])
+            print('ID = %s delete done.' % data['id'])
             return 1
         except:
             self.db.rollback()
-            # print('ID = %s delete fail.\n sql = %s \n' % (data['id'], sql))
+            print('ID = %s delete fail.\n sql = %s \n' % (data['id'], sql))
             return 0
 
     def q(self, table_name, rid):
         sql = "SELECT * FROM %s WHERE id=%s" % (table_name, rid)
         self.cursor.execute(sql)
         data = self.cursor.fetchone()
-        print(data)
+        # print(data)
         return data
 
     # get total record

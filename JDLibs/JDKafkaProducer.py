@@ -17,9 +17,9 @@ from kafka.errors import kafka_errors
 from JDConfig import JDConfig as JDConfig
 
 
-#Allows to pass date objects
+# Allows to pass date objects
 class DatetimeEncoder(json.JSONEncoder):
-    def default(self, obj): # pylint: disable=method-hidden
+    def default(self, obj):  # pylint: disable=method-hidden
         try:
             return super(DatetimeEncoder, obj).default(obj)
         except TypeError:

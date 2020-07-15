@@ -46,16 +46,9 @@ def ask_for_confirm(warning):
 def force_drop(table_name):
     # connect to mysql and exec drop
     my = JDCMySQL()
-    if table_name == JDConfig.mysql_table_user_info \
-            or table_name == JDConfig.mysql_table_project_info \
-            or table_name == JDConfig.mysql_table_intellectual \
-            or table_name == JDConfig.mysql_table_financial \
-            or table_name == JDConfig.mysql_table_manag_user \
-            or table_name == JDConfig.mysql_table_upms_organization \
-            or table_name == JDConfig.mysql_table_upms_user_organization \
-            or table_name == JDConfig.mysql_table_user_login:
-        t = my.t(JDConfig.mysql_table_user_info)
-        print('[ %s ] : %s row(s) deleted.' % (JDConfig.mysql_table_user_info, t))
+    if table_name in JDConfig.mysql_table.values():
+        t = my.t(table_name)
+        print('[ %s ] : %s row(s) deleted.' % (table_name, t))
     else:
         print('[ %s ] : is not in table list.' % table_name)
     my.c()
@@ -64,12 +57,7 @@ def force_drop(table_name):
 def insert_all(table_name):
     ora = oracle()
     total = 0
-    if table_name == JDConfig.oracle_table_user_info \
-            or table_name == JDConfig.oracle_table_field_value_user \
-            or table_name == JDConfig.oracle_table_manag_user \
-            or table_name == JDConfig.oracle_table_upms_organization \
-            or table_name == JDConfig.oracle_table_upms_user_organization \
-            or table_name == JDConfig.oracle_table_user_login:
+    if table_name in JDConfig.oracle_table.values():
         total = ora.length(table_name)
         print("%s , TOTAL = %s" % (table_name, total))
     else:

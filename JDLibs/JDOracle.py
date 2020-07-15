@@ -40,10 +40,8 @@ class JDCOracle:
         # os.environ["NLS_LANG"] = "AMERICAN_AMERICA.UTF8"
         # os.environ["TNS_ADMIN"] = '$HOME/etc'
         # os.environ["PATH"] = '$PATH:$ORACLE_HOME'
-
         # print(os.environ)
 
-        # self.db = cx_Oracle.connect(f'{JDConfig.oracle_user}/{JDConfig.oracle_psw}@{JDConfig.oracle_server}:1521/orcl')
         self.db = cx_Oracle.connect(JDConfig.oracle_user,
                                     JDConfig.oracle_psw,
                                     JDConfig.oracle_server
@@ -57,18 +55,6 @@ class JDCOracle:
         self.db.close()
 
     def dynTableQuery(self, field_id, form_user_id):
-        _sql = '''
-            select t.ID,t.T_FIELD_NAME_ID,t.T_TARGET_ID,u.CODE,u.VALUE from T_TARGET_FIELD t
-            join
-            T_FIELD_VALUE_USER u
-            on
-            t.T_FIELD_NAME_ID = u.T_FIELD_NAME_ID
-            join
-            T_TARGET_FIELD c
-            on c.T_TARGET_ID = t.T_TARGET_ID AND c.T_FIELD_NAME_ID=''' + str(field_id) + '''
-            where u.T_TARGET_FORM_USER_ID=''' + str(form_user_id) + '''
-            '''
-
         sql = '''
         select aa.*,i.ID as company_id, i.PAPER_NO_ABCDEF as paper_no, i.USER_NAME_ABCDEF as company_name from 
         (select t.ID,t.T_FIELD_NAME_ID,t.T_TARGET_ID,u.CODE,u.VALUE,u.T_TARGET_FORM_USER_ID,tb.USER_ID,
@@ -81,18 +67,10 @@ class JDCOracle:
         )aa 		
         join USER_INFO i on i.ID = aa.USER_ID
         '''
-
         # print("====\n%s\n" % sql)
         self.cursor.execute(sql)
-        # for d in self.cursor:
-        #     print(d)
-
         desc = [d[0] for d in self.cursor.description]
         result = [dict(zip(desc, line)) for line in self.cursor]
-
-        # ret = []
-        # for r in result:
-        #     ret.append(json.dumps(r, cls=DatetimeEncoder, ensure_ascii=False))
         return result
 
     def p(self, table, start, end):
@@ -101,28 +79,9 @@ class JDCOracle:
               (dbtable, end,
                dbtable, start)
         self.cursor.execute(sql)
-
-        # r = [dict((self.cursor.description[i][0], value) for i, value in enumerate(row)) for row in self.cursor.fetchall()]
-
-        # for j, in self.cursor.execute(sql):
-        #     json_data = json.loads(j.read())
-        #     print(json_data)
-
         desc = [d[0] for d in self.cursor.description]
         result = [dict(zip(desc, line)) for line in self.cursor]
-
-        # ret = []
-        # for r in result:
-        #     ret.append(json.dumps(r, cls=DatetimeEncoder, ensure_ascii=False))
-
         return result
-
-        # rj = json.dumps(result, cls=DatetimeEncoder, ensure_ascii=False)
-        # print("\r\n\r\n ========== \r\n\r\n")
-        # print(rj)
-        # return rj
-        # for row in self.cursor:
-        #     print(row)
 
     def length(self, table_name):
         sql = ' select count(*) as length from %s' % \
