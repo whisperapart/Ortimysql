@@ -8,33 +8,21 @@
 |OGG| OGG 12.1.2.1.0 for 11.2 | OGG bd	12.3.2.1.1 |
 |Kafka| - | Kafka_2.11-2.4.0 |
 
-### flow
-
-```flow
-st=>start: 开始
-op=>operation: My Operation
-cond=>condition: Yes or No?
-e=>end
-st->op->cond
-cond(yes)->e
-cond(no)->op
-```
-
 ## 1. source - oracle - install ogg 
 - pre-installed oracle version: oracle 11.2
 - ogg installation path: /opt/ogg
 
 ```bash
-$ mkdir -p /opt/ogg
-$ chown -R oracle:oinstall /opt/ogg
-$ vi /etc/profile
+ # mkdir -p /opt/ogg
+ # chown -R oracle:oinstall /opt/ogg
+ # vi /etc/profile
 export OGG_HOME=/opt/ogg
 export LD_LIBRARY_PATH=$ORACLE_HOME/lib:/usr/lib
 export PATH=$OGG_HOME:$PATH
-$ source /etc/profile
-$ su - oracle
-$ sqlplus / as sysdba
-$ archive log list
+ # source /etc/profile
+ # su - oracle
+ # sqlplus / as sysdba
+ # archive log list
 ```
 
 如果archive模式未启动，执行以下命令:
@@ -68,9 +56,9 @@ select * from dba_sys_privs where GRANTEE='OGG';
 
 启动ogg，并创建目录：
 ```bash
-$ su - oracle
-$ cd /opt/ogg
-$ ./ggsci
+ # su - oracle
+ # cd /opt/ogg
+ # ./ggsci
 SQL> create subdirs
 SQL> conn wuxihuishan_yutiaoshi/123456;
 Connected.
@@ -78,12 +66,12 @@ Connected.
 
 创建同步用户，并编辑mgr参数
 ```bash
-GGSCI (VM_0_25_centos) 1> dblogin userid ogg password ogg
+1> dblogin userid ogg password ogg
 1. Successfully logged into database.
-GGSCI (VM_0_25_centos) 3> view params ./globals
+3> view params ./globals
 oggschema ogg
 
-GGSCI (VM_0_25_centos) 4> edit param mgr
+4> edit param mgr
 PORT 7809
 DYNAMICPORTLIST 7810-7909
 AUTORESTART EXTRACT *,RETRIES 5,WAITMINUTES 3
@@ -92,17 +80,17 @@ PURGEOLDEXTRACTS ./dirdat/*,usecheckpoints, minkeepdays 3
 
 配置同步表信息
 ```bash
-GGSCI (VM_0_25_centos) 7> add trandata wuxihuishan_yutiaoshi.user_info
+7> add trandata wuxihuishan_yutiaoshi.user_info
 Logging of supplemental redo data enabled for table WUXIHUISHAN_YUTIAOSHI.USER_INFO.
 TRANDATA for scheduling columns has been added on table 'WUXIHUISHAN_YUTIAOSHI.USER_INFO'.
-GGSCI (VM_0_25_centos) 8> info trandata wuxihuishan_yutiaoshi.user_info
+8> info trandata wuxihuishan_yutiaoshi.user_info
 Logging of supplemental redo log data is enabled for table wuxihuishan_yutiaoshi.user_info.
 Columns supplementally logged for table wuxihuishan_yutiaoshi.user_info: ID.
 ```
 
 配置抽取
 ```bash
-GGSCI (VM_0_25_centos) 10> edit params ext2hd
+10> edit params ext2hd
 extract ext2hd
 dynamicresolution
 GETUPDATEBEFORES
@@ -142,9 +130,9 @@ table wuxihuishan_yutiaoshi.MANAG_USER;
 table wuxihuishan_yutiaoshi.UPMS_ORGANIZATION;
 table wuxihuishan_yutiaoshi.UPMS_USER_ORGANIZATION;
 
-GGSCI (VM_0_25_centos) 17> add extract push2hd,exttrailsource /opt/ogg/dirdat/hs
+17> add extract push2hd,exttrailsource /opt/ogg/dirdat/hs
 EXTRACT added.
-GGSCI (VM_0_25_centos) 18> add rmttrail /data/gg/dirdat/hs,extract push2hd
+18> add rmttrail /data/gg/dirdat/hs,extract push2hd
 RMTTRAIL added.
 ```
 
@@ -163,21 +151,21 @@ table wuxihuishan_yutiaoshi.UPMS_USER_ORGANIZATION;
 
 创建映射文件：
 ```bash
-$ cd /opt/ogg
-$ ./defgen paramfile dirprm/hs.prm
+ # cd /opt/ogg
+ # ./defgen paramfile dirprm/hs.prm
 Definitions generated for 1 table in /opt/ogg/dirdef/WUXIHUISHAN_YUTIAOSHI.USER_INFO.
 ```
 
 复制到目标服务器：
 ```bash
-$ scp dirdef/WUXIHUISHAN_YUTIAOSHI.USER_INFO root@192.168.1.157:/data/gg/dirdef/
+ # scp dirdef/WUXIHUISHAN_YUTIAOSHI.USER_INFO root@192.168.1.157:/data/gg/dirdef/
 ```
 
 
 ## 2. destination - ogg for bd
 install openJDK set JAVA_HOME
 ```bash
-$ vi /etc/profile
+ # vi /etc/profile
 export OGG_HOME=/data/gg
 export LD_LIBRARY_PATH=$JAVA_HOME/jre/lib/amd64:$JAVA_HOME/jre/lib/amd64/server:$JAVA_HOME/jre/lib/amd64/libjsig.so:$JAVA_HOME/jre/lib/amd64/server/libjvm.so:$OGG_HOME/lib
 export PATH=$OGG_HOME:$PATH
@@ -185,8 +173,8 @@ export PATH=$OGG_HOME:$PATH
 
 创建目录：
 ```bash
-$ cd /data/gg
-$ ./ggsci
+ # cd /data/gg
+ # ./ggsci
 1> create subdirs
 2> edit params mgr
 PORT 7809
@@ -208,7 +196,7 @@ MAP WUXIHUISHAN_YUTIAOSHI.*, TARGET WUXIHUISHAN_YUTIAOSHI.*;
 
 编辑对应的kafka配置：
 ```bash
-$ vi rekafka.prm
+ # vi rekafka.prm
 gg.handlerlist=kafkahandler
 gg.handler.kafkahandler.type=kafka
 gg.handler.kafkahandler.KafkaProducerConfigFile=custom_kafka_producer.properties
@@ -218,7 +206,7 @@ gg.handler.kafkahandler.mode=tx
 gg.handler.kafkahandler.format.includePrimaryKeys=true
 gg.classpath=dirprm/:/opt/module/kafka_2.11-2.4.0/libs/*:/data/gg/:/data/gg/lib/*
 
-$ vi custom_kafka_producer.properties
+ # vi custom_kafka_producer.properties
 bootstrap.servers=192.168.1.157:9092
 acks=1
 compression.type=gzip
@@ -231,27 +219,31 @@ linger.ms=10000
 
 添加exttrail:
 ```bash
-$ ./ggsci
+ # ./ggsci
 1> add replicat rekafka exttrail /data/gg/dirdat/hs,checkpointtable WUXIHUISHAN_YUTIAOSHI.checkpoint
 ```
 
 确认ogg的同步数据推送到了ogg BD:
 ```bash
 - source :
-$ ls -l /opt/ogg/dirdat/hs*
+ # ls -l /opt/ogg/dirdat/hs*
 - dest: 
-$ ls -l /data/gg/dirdat/hs*
+ # ls -l /data/gg/dirdat/hs*
 ```
 
 ## 3. destination install kafka
  - [How to install kafka](https://blog.csdn.net/csdnlihai/article/details/87787236)
 
-1. wget https://mirrors.cnnic.cn/apache/kafka/2.4.0/kafka_2.11-2.4.0.tgz --no-check-certificate
-1. tar zxvf kafka_2.11-2.4.0.tgz
+1. 获取及安装：
+```shell script
+ # wget https://mirrors.cnnic.cn/apache/kafka/2.4.0/kafka_2.11-2.4.0.tgz --no-check-certificate
+ # tar zxvf kafka_2.11-2.4.0.tgz
+```
+
 1. 编辑启动脚本-zookeeper:
 ```bash
-$ cd /lib/systemd/system/ 
-$ vim zookeeper.service 
+ # cd /lib/systemd/system/ 
+ # vim zookeeper.service 
 [Unit]
 Description=Zookeeper service
 After=network.target
@@ -271,7 +263,7 @@ WantedBy=multi-user.target
 
 1. 编辑启动脚本-kafka:
 ```bash
-$ vim kafka.service 
+ # vim kafka.service 
 [Unit]
 Description=Apache Kafka server (broker)
 After=network.target  zookeeper.service

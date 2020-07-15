@@ -12,10 +12,10 @@
  - 需要自定义转换规则
 
 ## usage
-1. prerequisite : [oracle_to_kafka](./Docs/oggKafka.md)
-1. run o2m.py to consume message from kafka
+ - prerequisite : [oracle_to_kafka](./Docs/oggKafka.md)
+ - run o2m.py to consume message from kafka
 ```bash
-$ python o2m.py
+ # python o2m.py
 Usage: python filename.py [option]
 	 start 		start daemon
 	 stop 		stop daemon
@@ -24,17 +24,17 @@ Usage: python filename.py [option]
 	 forceInit 	redo queue
 ```
 
-1. **optional** run syncInit.py to send all oracle table-data into kafka
+ - **optional** run syncInit.py to send all oracle table-data into kafka
 ```bash
-$ python syncInit.py 
+ # python syncInit.py 
 Usage: python syncInit.py [option] <table_name>
 	 forceDrop 		Force to DROP MySQL Table
 	 insertAll 		Insert all rows from oracle to kafka
 ```
 
-1. **optional** run util_compile.py to get a executable release
+ - **optional** run util_compile.py to get a executable release
 ```bash
-$ python util_compile.py
+ # python util_compile.py
 ```
 
 ## environments
