@@ -10,7 +10,7 @@
 """
 import sys
 
-from JDConfig import JDConfig as JDConfig
+from JDLibs.JDConfig import JDConfig as JDConfig
 from JDLibs.JDKafkaProducer import Producer as Producer
 from JDLibs.JDMySQL import JDCMySQL as JDCMySQL
 from JDLibs.JDOracle import JDCOracle as oracle

@@ -14,7 +14,7 @@ import time
 from kafka import KafkaProducer
 from kafka.errors import kafka_errors
 
-from JDConfig import JDConfig as JDConfig
+from JDLibs.JDConfig import JDConfig as JDConfig
 
 
 # Allows to pass date objects

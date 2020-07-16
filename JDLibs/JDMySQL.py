@@ -9,7 +9,7 @@
 """
 
 import pymysql
-from JDConfig import JDConfig as JDConfig
+from JDLibs.JDConfig import JDConfig as JDConfig
 
 
 class JDCMySQL:

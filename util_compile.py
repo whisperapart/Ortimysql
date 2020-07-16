@@ -26,6 +26,9 @@ if __name__ == '__main__':
     os.system('rm -rf release.pyz')
     os.system('mkdir ./release')
     os.system('cp -r ./JDLibs/__pycache__ ./release/JDLibs')
+
+    os.system('pip3 install -r requirements.txt --target release')
+
     fileList = os.listdir('./release/JDLibs/')
     for f in fileList:
         os.system("mv ./release/JDLibs/%s ./release/JDLibs/%s" % (f, f.replace('.cpython-37', '')))
@@ -33,12 +36,16 @@ if __name__ == '__main__':
     #py_compile.compile('./o2m.py')
     #os.system("mv ./__pycache__/1.cpython-37.pyc ./release/a.py")
     os.system("cp ./o2m.py ./release/a.py")
+    os.system("cp ./syncInit.py ./release/b.py")
 
     # cleanups
     os.system('rm -rf ./JDLibs/__pycache__')
     os.system('rm -rf ./__pycache__')
 
     os.system('python3 -m zipapp release -m "a:main"')
+    os.system('mv release.pyz o2md.pyz')
+    os.system('python3 -m zipapp release -m "b:main"')
+    os.system('mv release.pyz o2k.pyz')
     # python -m zipapp release -m "a:main"
     # http://c.biancheng.net/view/2687.html
 

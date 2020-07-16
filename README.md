@@ -46,6 +46,20 @@ Usage: python syncInit.py [option] <table_name>
 |OGG| OGG 12.1.2.1.0 for 11.2 | OGG bd	12.3.2.1.1 |
 |Kafka| - | Kafka_2.11-2.4.0 |
 
+### python 3.7.7:
+```bash
+ # wget -c https://www.python.org/ftp/python/3.7.7/Python-3.7.7.tgz
+ # tar -zxvf python-3.7.7.tgz
+ # cd python-3.7.7
+ # mkdir -p /usr/local/python3
+ # ./configure --prefix=/usr/local/python3
+ # make && make install
+ # ln -s /usr/local/python3/bin/python3 /usr/local/bin/python3
+ # ln -s /usr/local/python3/bin/pip3 /usr/local/bin/pip3
+ # python3 -V
+ # pip3 --version
+```
+
 ## tables
 |Map Type| Oracle(Source) | MySql(Destination) |
 |:----|:----|:----|

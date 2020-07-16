@@ -10,7 +10,7 @@
 
 import json
 from kafka import KafkaConsumer, TopicPartition, OffsetAndMetadata
-from JDConfig import JDConfig as JDConfig
+from JDLibs.JDConfig import JDConfig as JDConfig
 from JDLibs.JDConvert import JDConvert as JDConvert
 from JDLibs.JDMySQL import JDCMySQL as JDCMySQL
 

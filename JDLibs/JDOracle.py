@@ -10,7 +10,7 @@
 import json
 
 import cx_Oracle
-from JDConfig import JDConfig as JDConfig
+from JDLibs.JDConfig import JDConfig as JDConfig
 
 
 # Allows to pass date objects

@@ -111,7 +111,8 @@ class JDConvert:
         # my["market_guowai"] = ogg[""]           # 产品国外市场份额
         # my["sources"] = ogg[""]                 # 信息来源
         # my["core_technology_sources"] = ogg[""] # 核心技术来源
-        my["enterprise_info"] = '\'%s\'' % ogg["COMPANY_PROFILE"]  # 企业介绍
+        profile_str = ogg["COMPANY_PROFILE"]
+        my["enterprise_info"] = '\'%s\'' % (profile_str[0:180])  # 企业介绍
         my["open_bank"] = '\'%s\'' % ogg["BANK_OPEN_ABCDEF"]  # 开户行
         my["open_bank_no"] = '\'%s\'' % ogg["BANK_ACCOUNT_ABCDEF"]  # 开户账号
         # my["tax_no"] = ogg[""]                      # 税务登记证号
