@@ -20,6 +20,8 @@ if __name__ == '__main__':
     # 删除 compile 文件
     # 打包为 zip
 
+    if os.path.exists('./publish/'):
+        os.system('rm -rf ./publish')
     if os.path.exists('./release/'):
         os.system('rm -rf ./release')
     os.system('rm -rf release.zip')
@@ -42,10 +44,17 @@ if __name__ == '__main__':
     os.system('rm -rf ./JDLibs/__pycache__')
     os.system('rm -rf ./__pycache__')
 
+    if os.path.exists('./publish/'):
+        os.system('rm -rf ./publish')
+    os.system('mkdir ./publish')
+
     os.system('python3 -m zipapp release -m "a:main"')
-    os.system('mv release.pyz o2md.pyz')
+    os.system('mv release.pyz ./publish/o2md.pyz')
     os.system('python3 -m zipapp release -m "b:main"')
-    os.system('mv release.pyz o2k.pyz')
+    os.system('mv release.pyz ./publish/o2k.pyz')
+
+    if os.path.exists('./release/'):
+        os.system('rm -rf ./release')
     # python -m zipapp release -m "a:main"
     # http://c.biancheng.net/view/2687.html
 

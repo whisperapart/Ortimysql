@@ -77,11 +77,11 @@ def run_user_field_value(message):
     d = json.loads(d)
 
     fieldId = int(d['T_FIELD_NAME_ID'])
-    print("working field_id = %s " % fieldId)
+    # print("working field_id = %s " % fieldId)
     intercept = JDConvert.oracle_field_code_dispatcher(fieldId)
     tableName = ''
     if intercept is None:
-        print('intercept catch, not in watch list, ignoring...')
+        print('intercept catch, not in watch list, ignoring field_id = %s...' % fieldId)
         return ret
 
     data = ''
@@ -169,8 +169,8 @@ class Consumer:
 
             self.consumer.commit(offsets={self.topic_partition: (OffsetAndMetadata(message.offset + 1, None))})
             committed_offset = self.consumer.committed(self.topic_partition)
-            if self.verbose > 1:
-                print('o2m 已保存的偏移量:', committed_offset, end='\t')
+            # if self.verbose > 1:
+            print('o2m 已保存的偏移量:', committed_offset, end='\t')
 
     def close(self):
         self.consumer.close()

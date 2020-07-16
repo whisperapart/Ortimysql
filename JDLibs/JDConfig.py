@@ -14,9 +14,9 @@ class JDConfig:
     kafka_topic_user_info = 'togg'
     kafka_group_id = 'group_id'
     mysql_server = '192.168.1.157'
-    mysql_user = 'platform_policy_match'
+    mysql_user = 'platform_policy_match_test'
     mysql_psw = '123456'
-    mysql_db = 'platform_policy_match'
+    mysql_db = 'platform_policy_match_test'
     mysql_table = {}
     mysql_table['user_info'] = 'user_info'  # 企业信息
     mysql_table['user_login'] = 'user_login'  # 登陆信息

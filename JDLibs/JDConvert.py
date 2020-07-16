@@ -34,7 +34,8 @@ intellectual_code = {
     'software_copyright': 12404,  # 软件著作权
     'software_total': 12402,  # 著作权总量
     'total_ic_layout': 12412,  # 集成电路布图总量
-    'total_new_drug_certificate': 12410  # 新药证书总量
+    'total_new_drug_certificate': 12410,  # 新药证书总量
+    # 'year': # 年份 todo: 编号待补全
 }
 
 financial_code = {
@@ -111,7 +112,7 @@ class JDConvert:
         # my["market_guowai"] = ogg[""]           # 产品国外市场份额
         # my["sources"] = ogg[""]                 # 信息来源
         # my["core_technology_sources"] = ogg[""] # 核心技术来源
-        profile_str = ogg["COMPANY_PROFILE"]
+        profile_str = str(ogg["COMPANY_PROFILE"])
         my["enterprise_info"] = '\'%s\'' % (profile_str[0:180])  # 企业介绍
         my["open_bank"] = '\'%s\'' % ogg["BANK_OPEN_ABCDEF"]  # 开户行
         my["open_bank_no"] = '\'%s\'' % ogg["BANK_ACCOUNT_ABCDEF"]  # 开户账号
@@ -257,11 +258,14 @@ class JDConvert:
                     my['customer_name'] = '\'%s\'' % d['COMPANY_NAME']
                     my['id'] = d['T_TARGET_FORM_USER_ID']
                     x = int(d['FILL_YEAR'])
-                    y = x - 1 if x > 0 else 0
+                    y = x if x > 0 else 0
                     my['year'] = '\'%s\'' % y
             # 项目表中的 year 字段
             if k == 'year' and d['VALUE'] is not None:
-                my['year'] = d['VALUE']
+                try:
+                    my['year'] = int(d['VALUE'])
+                except:
+                    continue
         return my
 
     @staticmethod
@@ -274,7 +278,17 @@ class JDConvert:
             k = JDConvert.my_financial_col_from_oracle_code(d['T_FIELD_NAME_ID'])
             if k is not None:
                 if d['VALUE'] is not None:
-                    my[k] = d['VALUE']
+                    dv = d['VALUE']
+                    try:
+                        dv = int(d['VALUE'])
+                    except ValueError:
+                        try:
+                            dv = float(d['VALUE'])
+                            dv = round(dv, 2)
+                        except ValueError:
+                            dv = d['VALUE']  # string
+
+                    my[k] = dv
                     # 这里处理得不优雅，不过懒得改了
                     my['user_id'] = d['COMPANY_ID']
                     my['paper_no'] = '\'%s\'' % d['PAPER_NO']
@@ -289,7 +303,10 @@ class JDConvert:
                     my['create_time'] = '\'%s\'' % d['CREATE_TIME'] if '\'%s\'' % d['CREATE_TIME'] != 0 else 0
             # 财务表中的 year 字段
             if k == 'year' and d['VALUE'] is not None:
-                my['year'] = d['VALUE']
+                try:
+                    my['year'] = int(d['VALUE'])
+                except:
+                    continue
             # 解决mysql 逻辑删除问题
             my['is_delete'] = 2
         return my
@@ -312,8 +329,13 @@ class JDConvert:
                     my['user_name'] = '\'%s\'' % d['COMPANY_NAME']
                     my['id'] = d['T_TARGET_FORM_USER_ID']
                     x = int(d['FILL_YEAR'])
-                    y = x - 1 if x > 0 else 0
+                    y = x if x > 0 else 0
                     my['year'] = '\'%s\'' % y
+            if k == 'year' and d['VALUE'] is not None:
+                try:
+                    my['year'] = int(d['VALUE'])
+                except:
+                    continue
         return my
 
     @staticmethod

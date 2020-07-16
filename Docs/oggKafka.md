@@ -322,7 +322,7 @@ WantedBy=multi-user.target
  # bin/kafka-console-producer.sh --broker-list localhost:9092 --topic test
 ```
 
-## 4. python with oracle in mac
+## 4. python with oracle in mac / linux
 1. pip3 install cx_Oracle
 1. 安装oracle instantClient
  - https://www.oracle.com/cn/technical-resources/topics/intel-macsoft.html
@@ -336,6 +336,20 @@ export LD_LIBRARY_PATH=$ORACLE_HOME
 export NLS_LANG=AMERICAN_AMERICA.UTF8
 export TNS_ADMIN=$HOME/etc
 export PATH=$PATH:$ORACLE_HOME
+```
+
+1. linux
+```shell script
+ # rpm -ivh oracle-instantclient11.2-basic-11.2.0.4.0-1.x86_64.rpm 
+ # vi ~/.bash_profile
+export ORACLE_HOME=/usr/lib/oracle/11.2/client64
+export DYLD_LIBRARY_PATH=$ORACLE_HOME
+export LD_LIBRARY_PATH=/usr/lib/oracle/11.2/client64:$LD_LIBRARY_PATH
+export LD_LIBRARY_PATH=$ORACLE_HOME/lib:$LD_LIBRARY_PATH
+export NLS_LANG=AMERICAN_AMERICA.UTF8
+export TNS_ADMIN=$HOME/etc
+export PATH=$PATH:$ORACLE_HOME
+ # source ~/.bash_profile
 ```
 
 1. source 以生效
