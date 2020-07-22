@@ -26,6 +26,7 @@ class JDConfig:
     mysql_table['manag_user'] = 'manag_user'
     mysql_table['upms_organization'] = 'upms_organization'
     mysql_table['upms_user_organization'] = 'upms_user_organization'
+    mysql_table['user_contact'] = 't_user_contact'  # 联系人信息
     # mysql_table_target_form_user = 't_target_form_user'  # 企业填入的动态表格
 
     oracle_server = '192.168.1.88:/orcl'

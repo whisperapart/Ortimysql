@@ -62,8 +62,29 @@ financial_code = {
 
 project_code = {
     'project_name': 11790,  # 成功申报的项目数据
-    'year':11791 # 年份
+    'year': 11791  # 年份
 }
+
+project_map = {
+    "'国家高新技术企业认定'": {"name": '\'%s\'' % "国家高新技术企业认定", "level": '\'%s\'' % "国家级", "window": '\'%s\'' % "科技"},
+    "'国家科技型中小企业'": {"name": '\'%s\'' % "江苏省科技型中小企业", "level": '\'%s\'' % "省级", "window": '\'%s\'' % "科技"},
+    "'江苏省高新技术企业（培育入库）企业'": {"name": '\'%s\'' % "国家科技型中小企业信息库入库企业", "level": '\'%s\'' % "省级", "window": '\'%s\'' % "科技"},
+    "'江苏省创新型领军企业'": {"name": '\'%s\'' % "江苏省创新型领军企业", "level": '\'%s\'' % "省级", "window": '\'%s\'' % "科技"},
+    "'江苏省企业技术创新奖'": {"name": '\'%s\'' % "江苏省企业技术创新奖", "level": '\'%s\'' % "省级", "window": '\'%s\'' % "科技"},
+    "'江苏省农业产业化重点龙头企业'": {"name": '\'%s\'' % "省重点研发计划（现代农业）项目", "level": '\'%s\'' % "省级", "window": '\'%s\'' % "科技"},
+    "'知识产权贯标企业'": {"name": '\'%s\'' % "江苏省企业知识产权管理标准化贯标奖励", "level": '\'%s\'' % "省级", "window": '\'%s\'' % "知产"}
+}
+
+
+def fix_project_info(p):
+    for m in project_map:
+        if m==p["project_name"]:
+    # if p["project_name"] in project_map:
+            #print("key matches: %s" % p["project_name"])
+            p["project_name"] = project_map[m]["name"]
+            p["level"] = project_map[m]["level"]
+            p["window"] = project_map[m]["window"]
+    return p
 
 
 class JDConvert:
@@ -142,6 +163,57 @@ class JDConvert:
         return my
 
     @staticmethod
+    def ogg2mysql_user_contact(ogg):
+        xogg = defaultdict(lambda: 0)
+        for key in ogg:
+            xogg[key] = ogg[key] if ogg[key] is not None else 0
+        ogg = xogg
+
+        contact = {
+            "id": "%s%s" % (ogg["USER_ID"], "01"),
+            "name": '\'%s\'' % ogg["CONTACTS_ABCDEF"],
+            "mobile": '\'%s\'' % ogg["MOVE_TEL_ABCDEF"],
+            "duty": '\'%s\'' % "联系人",  # 职务 varchar50
+            "email": '\'%s\'' % ogg["EMAIL_ABCDEF"],  # 职务 varchar50
+            "is_delete": 2,
+            "user_id": ogg["USER_ID"],  # 用户id bigint20
+            "user_name": '\'%s\'' % ogg["USER_NAME_ABCDEF"],  # 用户名称 - 企业名称 varchr 100
+            "paper_no": '\'%s\'' % ogg["PAPER_NO_ABCDEF"]  # 证件号码 varchar 100
+        }
+        financial = {
+            "id": "%s%s" % (ogg["USER_ID"], "02"),
+            "name": '\'%s\'' % ogg["FINANCE_CONTACT"],
+            "mobile": '\'%s\'' % ogg["FINANCE_MOBEL"],
+            "duty": '\'%s\'' % "财务",  # 职务 varchar50
+            "email": '\'%s\'' % ogg["FINANCE_EMAIL"],  # 职务 varchar50
+            "is_delete": 2,
+            "user_id": ogg["USER_ID"],  # 用户id bigint20
+            "user_name": '\'%s\'' % ogg["USER_NAME_ABCDEF"],  # 用户名称 - 企业名称 varchr 100
+            "paper_no": '\'%s\'' % ogg["PAPER_NO_ABCDEF"]  # 证件号码 varchar 100
+        }
+        my = []
+        if contact['name'] != '':
+            my.append(contact)
+        if financial['name'] != '':
+            my.append(financial)
+        # my['id'] = '\'%s\'' % ogg[""]  # id primary key 非空 bigint 20
+        # my['type'] = '\'%s\'' % ogg[""]  # 联系人类型 varchar 10
+        # my['name'] = '\'%s\'' % ogg["CONTACTS_ABCDEF"]  # 联系人 varchar 32
+        # my['qq'] = '\'%s\'' % ogg[""]  # qq varchar20
+        # my['email'] = '\'%s\'' % ogg[""]  # 邮箱 varchar50
+        # my['mobile'] = '\'%s\'' % ogg["MOVE_TEL_ABCDEF"]  # 手机 varchar20
+        # my['duty'] = '\'%s\'' % ogg[""]  # 职务 varchar50
+        # my['department'] = '\'%s\'' % ogg[""]  # 所属部门 varchar50
+        # my['is_delete'] = '\'%s\'' % ogg[""]  # 1删除 2未删除 int1
+        # my['source'] = '\'%s\'' % ogg[""]  # 来源1导入2创建 int1
+        # my['user_id'] = '\'%s\'' % ogg[""]  # 用户id bigint20
+        # my['create_time'] = '\'%s\'' % ogg[""]  # 创建时间 datetime
+        # my['update_time'] = '\'%s\'' % ogg[""]  # 更新时间 非空 timestamp
+        # my['user_name'] = '\'%s\'' % ogg[""]  # 用户名称 - 企业名称 varchr 100
+        # my['paper_no'] = '\'%s\'' % ogg[""]  # 证件号码 varchar 100
+        return my
+
+    @staticmethod
     def ogg2mysql_user_login(ogg):
         xogg = defaultdict(lambda: 0)
         for key in ogg:
@@ -175,14 +247,14 @@ class JDConvert:
             xogg[key] = ogg[key] if ogg[key] is not None else 0
         ogg = xogg
         my = {}
-        my['ID'] = int(ogg['ID'])    # ID bigint 20
+        my['ID'] = int(ogg['ID'])  # ID bigint 20
         my['SYS_ID'] = '\'%s\'' % ogg['SYS_ID']  # 系统地区ID varchar 50
         my['MANAG_ID'] = '\'%s\'' % ogg['MANAG_ID']  # varchar 100
         my['MANAG_PW'] = '\'%s\'' % ogg['MANAG_PW']  # varchar 255
         my['STATE'] = int(ogg['STATE'])  # smallint 2
         my['IS_DELETE'] = int(ogg['IS_DELETE'])  # smallint 2
         my['BEF_SYS_ID'] = '\'%s\'' % ogg['BEF_SYS_ID']  # varchar 50
-        my['BEF_LOGINTIME'] = '\'%s\'' % ogg["BEF_LOGINTIME"] if ogg["BEF_LOGINTIME"] != 0 else 0 # datetime
+        my['BEF_LOGINTIME'] = '\'%s\'' % ogg["BEF_LOGINTIME"] if ogg["BEF_LOGINTIME"] != 0 else 0  # datetime
         my['THIS_LOGINTIME'] = '\'%s\'' % ogg["THIS_LOGINTIME"] if ogg["THIS_LOGINTIME"] != 0 else 0  # datetime
         my['BEF_IP'] = '\'%s\'' % ogg['BEF_IP']  # varchar 50
         my['THIS_IP'] = '\'%s\'' % ogg['THIS_IP']  # varchar 50
@@ -212,7 +284,7 @@ class JDConvert:
         my['leader_name'] = '\'%s\'' % ogg['FGLD_NAME']  # varchar 20
         # my['is_sub_company'] = int(ogg[''])  # int 2
         # my['is_del'] = int(ogg[''])  # int 2
-        my['create_time'] = '\'%s\'' % ogg["CTIME"] if ogg["CTIME"] != 0 else 0 # timestamp
+        my['create_time'] = '\'%s\'' % ogg["CTIME"] if ogg["CTIME"] != 0 else 0  # timestamp
         # my['update_time'] = '\'%s\'' % ogg["CREATE_TIME"] if ogg["CREATE_TIME"] != 0 else 0  # timestamp
         # my['sort'] = int(ogg[''])  # smallint4
         return my
@@ -266,6 +338,7 @@ class JDConvert:
                     my['year'] = int(d['VALUE'])
                 except:
                     continue
+        my = fix_project_info(my)
         return my
 
     @staticmethod
@@ -316,7 +389,6 @@ class JDConvert:
         orc = JDCOracle()
         ret = orc.dynTableQuery(ogg['T_FIELD_NAME_ID'], ogg['T_TARGET_FORM_USER_ID'])
         orc.c()
-        print(ret)
         my = {}
         for d in ret:
             k = JDConvert.my_intellectual_col_from_oracle_code(d['T_FIELD_NAME_ID'])

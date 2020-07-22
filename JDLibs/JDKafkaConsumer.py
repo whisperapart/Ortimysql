@@ -110,7 +110,12 @@ def run_user_info(message):
         d = json.dumps(d)
     d = json.loads(d)
     data = JDConvert.ogg2mysql_user_info(d)
-    return run_table(message, JDConfig.mysql_table['user_info'], data)
+    ret = run_table(message, JDConfig.mysql_table['user_info'], data)
+    if ret == 1:
+        contArr = JDConvert.ogg2mysql_user_contact(d)
+        for c in contArr:
+            run_table(message, JDConfig.mysql_table['user_contact'], c)
+    return ret
 
 
 class Consumer:
@@ -132,6 +137,8 @@ class Consumer:
             ##重置此消费者消费的起始位
             self.consumer.seek(partition=self.topic_partition, offset=0)
         self.verbose = verbose
+        # debug purpose
+        # self.consumer.seek(partition=self.topic_partition, offset=160768)
 
     def run(self):
         total = 0
