@@ -319,9 +319,6 @@ WantedBy=multi-user.target
  # /opt/module/kafka_2.11-2.4.0/bin/kafka-run-class.sh kafka.tools.GetOffsetShell --broker-list 192.168.1.157:9092 --topic togg
  # bin/kafka-console-consumer.sh --bootstrap-server 192.168.1.157:9092 --topic togg --from-beginning
  # bin/kafka-topics.sh --list --bootstrap-server localhost:9092
-
-
-
  # bin/kafka-console-producer.sh --broker-list localhost:9092 --topic test
 ```
 
@@ -353,6 +350,7 @@ export NLS_LANG=AMERICAN_AMERICA.UTF8
 export TNS_ADMIN=$HOME/etc
 export PATH=$PATH:$ORACLE_HOME
  # source ~/.bash_profile
+ # yum install  libaio-devel.x86_64 -y
 ```
 
 1. source 以生效
@@ -361,6 +359,7 @@ export PATH=$PATH:$ORACLE_HOME
 ```
 
 1. oracle 11 丢失的若干文件的处理
+注意，把 oracle_home/lib 下 xxx.so.11.1 复制为 xxx.so
 ```bash
  # mkdir ~/lib
  # ln -s /opt/oracle/instantclient/libclntsh.dylib.11.2 ~/lib/
@@ -369,9 +368,10 @@ export PATH=$PATH:$ORACLE_HOME
  # mkdir -p /opt/oracle/instantclient_12_2/network/admin
 ```
 
+
 1. 在python中配置环境变量
 ```python
-os.environ["ORACLE_HOME"] = '/opt/oracle/instantclient'
+os.environ["ORACLE_HOME"] = '/usr/lib/oracle/11.2/client64'
 os.environ["DYLD_LIBRARY_PATH"] = '$ORACLE_HOME'
 os.environ["LD_LIBRARY_PATH"] = '$ORACLE_HOME'
 os.environ["NLS_LANG"] = "AMERICAN_AMERICA.UTF8"

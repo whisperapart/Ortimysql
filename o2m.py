@@ -17,11 +17,12 @@ class JDKFKCDaemon(Daemon):
 
     def run(self, force=False):
         while True:
-            com = Consumer(verbose=0, forceRestart=force)
+            com = Consumer(verbose=2, forceRestart=force)
             com.run()
             com.close()
             force = False   # force init only for ONE FUCKING TIME
             time.sleep(0.3)
+            sys.stdout.flush()
 
     def stop(self):
         super(JDKFKCDaemon, self).stop()
@@ -79,7 +80,7 @@ def main():
     elif len(sys.argv) == 2:
         arg = sys.argv[1]
         if arg in ('start', 'stop', 'restart', 'status'):
-            d = JDKFKCDaemon('JDKFKCDaemon.pid', verbose=1)
+            d = JDKFKCDaemon('JDKFKCDaemon.pid', verbose=2)
             getattr(d, arg)()
         elif arg == 'forceInit':
             d = JDKFKCDaemon('JDKFKCDaemon.pid', verbose=1)

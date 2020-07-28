@@ -318,9 +318,13 @@ class JDConvert:
 
     @staticmethod
     def ogg2mysql_project(ogg):
-        orc = JDCOracle()
-        ret = orc.dynTableQuery(ogg['T_FIELD_NAME_ID'], ogg['T_TARGET_FORM_USER_ID'])
-        orc.c()
+        print("inside call")
+        try:
+            orc = JDCOracle()
+            ret = orc.dynTableQuery(ogg['T_FIELD_NAME_ID'], ogg['T_TARGET_FORM_USER_ID'])
+            orc.c()
+        except Exception as e:
+            print(e)
         my = {}
         for d in ret:
             k = JDConvert.my_project_col_from_oracle_code(d['T_FIELD_NAME_ID'])

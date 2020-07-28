@@ -9,6 +9,7 @@
 """
 
 import json
+import os
 import threading
 
 from kafka import KafkaConsumer, TopicPartition, OffsetAndMetadata
@@ -90,21 +91,23 @@ def run_user_login(message):
 def run_user_field_value(message):
     ret = 0
     pn =''
+    #f = open("./run.log", "a")
     d = message.value['after'] if message.value['op_type'] != 'D' else message.value['before']
     if isinstance(d, dict):
         d = json.dumps(d)
     d = json.loads(d)
 
     fieldId = int(d['T_FIELD_NAME_ID'])
-    # print("working field_id = %s " % fieldId)
+    # print("working field_id = %s " % fieldId, file=f)
     intercept = JDConvert.oracle_field_code_dispatcher(fieldId)
+    # print("intercept = %s" % intercept, file=f)
     tableName = ''
     if intercept is None:
-        print('intercept catch, not in watch list, ignoring field_id = %s...' % fieldId)
+        # print('intercept catch, not in watch list, ignoring field_id = %s...' % fieldId , file=f)
         return ret, pn
 
     data = ''
-    # print("==== converting \n")
+    # print("==== converting \n", file=f)
     if intercept == 'financial':
         tableName = JDConfig.mysql_table['financial']
         data = JDConvert.ogg2mysql_financial(d)
@@ -113,15 +116,18 @@ def run_user_field_value(message):
         data = JDConvert.ogg2mysql_intellectual(d)
     elif intercept == 'project':
         tableName = JDConfig.mysql_table['project_info']
+        # print("tableName = %s " % tableName, file=f)
         data = JDConvert.ogg2mysql_project(d)
-    # print("==== end of converting\n")
+        # print("data = " % data, file=f)
+    # print("==== end of converting\n",file=f)
 
     if tableName == '':
-        print('intercept catch, table name empty, ignoring...')
+        # print('intercept catch, table name empty, ignoring...',file=f)
         return ret, pn
 
     ret = run_table(message, tableName, data)
     pn = data.get('paper_no', '')
+    # f.close()
     return ret, pn
 
 
@@ -160,7 +166,7 @@ class Consumer:
             self.consumer.seek(partition=self.topic_partition, offset=0)
         self.verbose = verbose
         # debug purpose
-        # self.consumer.seek(partition=self.topic_partition, offset=160768)
+            # self.consumer.seek(partition=self.topic_partition, offset=160768)
 
     def run(self):
         total = 0
@@ -173,42 +179,42 @@ class Consumer:
                 re, pn = run_user_info(message)
                 cnt = cnt + re
                 if self.verbose > 1:
-                    print("total: %s / succ: %s" % (total, cnt))
+                    print("[user_info]total: %s / succ: %s" % (total, cnt))
             # user_login 完全照抄
             elif message.value['table'] == JDConfig.oracle_db + '.' + JDConfig.oracle_table['user_login']:
                 re, pn = run_user_login(message)
                 cnt = cnt + re
                 if self.verbose > 0:
-                    print("total: %s / succ: %s" % (total, cnt))
+                    print("[user_login]total: %s / succ: %s" % (total, cnt))
             # manag_user upms_organization upms_user_organization 完全照抄
             elif message.value['table'] == JDConfig.oracle_db + '.' + JDConfig.oracle_table['manag_user']:
                 re, pn = run_manag_user(message)
                 cnt = cnt + re
                 if self.verbose > 0:
-                    print("total: %s / succ: %s" % (total, cnt))
+                    print("[manag_user]total: %s / succ: %s" % (total, cnt))
             elif message.value['table'] == JDConfig.oracle_db + '.' + JDConfig.oracle_table['upms_organization']:
                 re, pn = run_upms_org(message)
                 cnt = cnt + re
                 if self.verbose > 0:
-                    print("total: %s / succ: %s" % (total, cnt))
+                    print("[upms_org]total: %s / succ: %s" % (total, cnt))
             elif message.value['table'] == JDConfig.oracle_db + '.' + JDConfig.oracle_table['upms_user_organization']:
                 re, pn = run_upms_user_org(message)
                 cnt = cnt + re
                 if self.verbose > 0:
-                    print("total: %s / succ: %s" % (total, cnt))
+                    print("[upms_user_org]total: %s / succ: %s" % (total, cnt))
             # t_field_value_user 用户填写的字段的值，需要拦截[关注]的字段，填入mysql 对应的表格中
             elif message.value['table'] == JDConfig.oracle_db + '.' + JDConfig.oracle_table['field_value_user']:
                 re, pn = run_user_field_value(message)
                 cnt = cnt + re
                 if self.verbose > 1:
-                    print("total: %s / succ: %s" % (total, cnt))
+                    print("[user_field_value]total: %s / succ: %s" % (total, cnt))
 
             kafka_insert_thread(pn)
 
             self.consumer.commit(offsets={self.topic_partition: (OffsetAndMetadata(message.offset + 1, None))})
             committed_offset = self.consumer.committed(self.topic_partition)
             # if self.verbose > 1:
-            print('o2m 已保存的偏移量:', committed_offset, end='\t')
+            print('o2m 已保存的偏移量:', committed_offset)
 
     def close(self):
         self.consumer.close()
