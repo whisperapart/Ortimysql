@@ -9,10 +9,20 @@
 """
 
 import json
+import threading
+
 from kafka import KafkaConsumer, TopicPartition, OffsetAndMetadata
 from JDLibs.JDConfig import JDConfig as JDConfig
 from JDLibs.JDConvert import JDConvert as JDConvert
+from JDLibs.JDKafkaProducer import Producer as Producer
 from JDLibs.JDMySQL import JDCMySQL as JDCMySQL
+
+
+def kafka_insert_thread(pn):
+    if pn != '' and pn is not None:
+        inserter = Producer('whatever')
+        inserter.send_company_update_flag(pn)
+        inserter.close()
 
 
 def run_table(message, table_name, data):
@@ -39,7 +49,9 @@ def run_manag_user(message):
         d = json.dumps(d)
     d = json.loads(d)
     data = JDConvert.ogg2mysql_manag_user(d)
-    return run_table(message, JDConfig.mysql_table['manag_user'], data)
+    ret = run_table(message, JDConfig.mysql_table['manag_user'], data)
+    pn = data.get('paper_no', '')
+    return ret, pn
 
 
 def run_upms_org(message):
@@ -48,7 +60,9 @@ def run_upms_org(message):
         d = json.dumps(d)
     d = json.loads(d)
     data = JDConvert.ogg2mysql_upms_org(d)
-    return run_table(message, JDConfig.mysql_table['upms_organization'], data)
+    ret = run_table(message, JDConfig.mysql_table['upms_organization'], data)
+    pn = data.get('paper_no', '')
+    return ret, pn
 
 
 def run_upms_user_org(message):
@@ -57,7 +71,9 @@ def run_upms_user_org(message):
         d = json.dumps(d)
     d = json.loads(d)
     data = JDConvert.ogg2mysql_upms_user_org(d)
-    return run_table(message, JDConfig.mysql_table['upms_user_organization'], data)
+    ret = run_table(message, JDConfig.mysql_table['upms_user_organization'], data)
+    pn = data.get('paper_no', '')
+    return ret, pn
 
 
 def run_user_login(message):
@@ -66,11 +82,14 @@ def run_user_login(message):
         d = json.dumps(d)
     d = json.loads(d)
     data = JDConvert.ogg2mysql_user_login(d)
-    return run_table(message, JDConfig.mysql_table['user_login'], data)
+    ret = run_table(message, JDConfig.mysql_table['user_login'], data)
+    pn = data.get('paper_no', '')
+    return ret, pn
 
 
 def run_user_field_value(message):
     ret = 0
+    pn =''
     d = message.value['after'] if message.value['op_type'] != 'D' else message.value['before']
     if isinstance(d, dict):
         d = json.dumps(d)
@@ -82,7 +101,7 @@ def run_user_field_value(message):
     tableName = ''
     if intercept is None:
         print('intercept catch, not in watch list, ignoring field_id = %s...' % fieldId)
-        return ret
+        return ret, pn
 
     data = ''
     # print("==== converting \n")
@@ -99,9 +118,11 @@ def run_user_field_value(message):
 
     if tableName == '':
         print('intercept catch, table name empty, ignoring...')
-        return ret
+        return ret, pn
 
-    return run_table(message, tableName, data)
+    ret = run_table(message, tableName, data)
+    pn = data.get('paper_no', '')
+    return ret, pn
 
 
 def run_user_info(message):
@@ -111,17 +132,18 @@ def run_user_info(message):
     d = json.loads(d)
     data = JDConvert.ogg2mysql_user_info(d)
     ret = run_table(message, JDConfig.mysql_table['user_info'], data)
+    pn = data.get('paper_no', '')
     if ret == 1:
         contArr = JDConvert.ogg2mysql_user_contact(d)
         for c in contArr:
             run_table(message, JDConfig.mysql_table['user_contact'], c)
-    return ret
+    return ret, pn
 
 
 class Consumer:
     def __init__(self, verbose, forceRestart=False):
         self.consumer = KafkaConsumer(bootstrap_servers=JDConfig.kafka_bootstrap_server,
-                                      group_id=JDConfig.kafka_group_id,
+                                      group_id=JDConfig.kafka_group_id_info,
                                       auto_offset_reset='earliest',
                                       value_deserializer=lambda m: json.loads(m.decode('utf-8')),
                                       consumer_timeout_ms=1000)
@@ -145,34 +167,43 @@ class Consumer:
         cnt = 0
         for message in self.consumer:
             total = total + 1
+            pn = ''
             # user_info 基本照抄
             if message.value['table'] == JDConfig.oracle_db + '.' + JDConfig.oracle_table['user_info']:
-                cnt = cnt + run_user_info(message)
+                re, pn = run_user_info(message)
+                cnt = cnt + re
                 if self.verbose > 1:
                     print("total: %s / succ: %s" % (total, cnt))
             # user_login 完全照抄
             elif message.value['table'] == JDConfig.oracle_db + '.' + JDConfig.oracle_table['user_login']:
-                cnt = cnt + run_user_login(message)
+                re, pn = run_user_login(message)
+                cnt = cnt + re
                 if self.verbose > 0:
                     print("total: %s / succ: %s" % (total, cnt))
             # manag_user upms_organization upms_user_organization 完全照抄
             elif message.value['table'] == JDConfig.oracle_db + '.' + JDConfig.oracle_table['manag_user']:
-                cnt = cnt + run_manag_user(message)
+                re, pn = run_manag_user(message)
+                cnt = cnt + re
                 if self.verbose > 0:
                     print("total: %s / succ: %s" % (total, cnt))
             elif message.value['table'] == JDConfig.oracle_db + '.' + JDConfig.oracle_table['upms_organization']:
-                cnt = cnt + run_upms_org(message)
+                re, pn = run_upms_org(message)
+                cnt = cnt + re
                 if self.verbose > 0:
                     print("total: %s / succ: %s" % (total, cnt))
             elif message.value['table'] == JDConfig.oracle_db + '.' + JDConfig.oracle_table['upms_user_organization']:
-                cnt = cnt + run_upms_user_org(message)
+                re, pn = run_upms_user_org(message)
+                cnt = cnt + re
                 if self.verbose > 0:
                     print("total: %s / succ: %s" % (total, cnt))
             # t_field_value_user 用户填写的字段的值，需要拦截[关注]的字段，填入mysql 对应的表格中
             elif message.value['table'] == JDConfig.oracle_db + '.' + JDConfig.oracle_table['field_value_user']:
-                cnt = cnt + run_user_field_value(message)
+                re, pn = run_user_field_value(message)
+                cnt = cnt + re
                 if self.verbose > 1:
                     print("total: %s / succ: %s" % (total, cnt))
+
+            kafka_insert_thread(pn)
 
             self.consumer.commit(offsets={self.topic_partition: (OffsetAndMetadata(message.offset + 1, None))})
             committed_offset = self.consumer.committed(self.topic_partition)
@@ -181,5 +212,3 @@ class Consumer:
 
     def close(self):
         self.consumer.close()
-
-

@@ -12,7 +12,9 @@
 class JDConfig:
     kafka_bootstrap_server = '192.168.1.157:9092'
     kafka_topic_user_info = 'togg'
-    kafka_group_id = 'group_id'
+    kafka_topic_company_info = 'company_info'
+    # kafka_group_id = 'group_id'
+    kafka_group_id_info = 'group_id_info'
     mysql_server = '192.168.1.157'
     mysql_user = 'platform_policy_match_test'
     mysql_psw = '123456'
@@ -40,3 +42,5 @@ class JDConfig:
     oracle_table['manag_user'] = 'MANAG_USER'  # 管理员表
     oracle_table['upms_organization'] = 'UPMS_ORGANIZATION'  # 组织
     oracle_table['upms_user_organization'] = 'UPMS_USER_ORGANIZATION'  # upms组织
+
+    # company_sync_api = 'http://192.168.1.178:'  # 同步完成之后调用接口更新 政策匹配结果

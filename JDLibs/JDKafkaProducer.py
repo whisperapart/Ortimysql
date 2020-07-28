@@ -56,5 +56,21 @@ class Producer:
             except kafka_errors as e:
                 print(str(e))
 
+    def send_company_update_flag(self, pn):
+        msg_dict = {
+                    'current_ts': time.strftime("%Y-%m-%d %H:%M:%S"),
+                    'paper_no': pn
+                    }
+        msg = json.dumps(msg_dict, cls=DatetimeEncoder).encode()
+        # print("\r\n== insert to kafka: %s" % msg)
+        future = self.producer.send(JDConfig.kafka_topic_company_info, msg)
+        try:
+            record_metadata = future.get(timeout=10)
+            print(record_metadata.topic, end=" ")
+            print(record_metadata.partition, end=" ")
+            print(record_metadata.offset)
+        except kafka_errors as e:
+            print(str(e))
+
     def close(self):
         self.producer.close()

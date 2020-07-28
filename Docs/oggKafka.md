@@ -319,6 +319,9 @@ WantedBy=multi-user.target
  # /opt/module/kafka_2.11-2.4.0/bin/kafka-run-class.sh kafka.tools.GetOffsetShell --broker-list 192.168.1.157:9092 --topic togg
  # bin/kafka-console-consumer.sh --bootstrap-server 192.168.1.157:9092 --topic togg --from-beginning
  # bin/kafka-topics.sh --list --bootstrap-server localhost:9092
+
+
+
  # bin/kafka-console-producer.sh --broker-list localhost:9092 --topic test
 ```
 
