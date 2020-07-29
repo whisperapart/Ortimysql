@@ -151,6 +151,9 @@ class Consumer:
         self.consumer = KafkaConsumer(bootstrap_servers=JDConfig.kafka_bootstrap_server,
                                       group_id=JDConfig.kafka_group_id_info,
                                       auto_offset_reset='earliest',
+                                      # enable_auto_commit=True,  # 每过一段时间自动提交所有已消费的消息（在迭代时提交）
+                                      # auto_commit_interval_ms=5000,  # 自动提交的周期（毫秒）
+                                      api_version=(0, 10, 1),
                                       value_deserializer=lambda m: json.loads(m.decode('utf-8')),
                                       consumer_timeout_ms=1000)
         self.topic_partition = TopicPartition(topic=JDConfig.kafka_topic_user_info, partition=0)
