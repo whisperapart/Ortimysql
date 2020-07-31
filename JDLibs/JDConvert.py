@@ -8,7 +8,6 @@
 @Desc:         
 """
 from collections import defaultdict
-
 from JDLibs.JDOracle import JDCOracle as JDCOracle
 
 sys_area = {
@@ -29,7 +28,7 @@ sys_reg_status = {
 }
 
 sys_board = {
-    '1': '主板', '2': '新三板', '3': '创业板', '4': '科创板', '5': '其他'
+    '1': '主板', '2': '新三板', '3': '创业板', '4': '科创板', '5': '其他', '0': ''
 }
 
 sys_tech = {
@@ -53,12 +52,12 @@ intellectual_code = {
     'software_total': 12402,  # 著作权总量
     'total_ic_layout': 12412,  # 集成电路布图总量
     'total_new_drug_certificate': 12410,  # 新药证书总量
-    # 'year': # 年份 todo: 编号待补全
+    'year': 12850  # 年份
 }
 
-financial_code = {
+financial_code_year_no_use = {
     'year': 12615,  # 年度
-    'operating_income': 12619,  # 主营业收入
+    'operating_income': 12618,  # 主营业收入
     'net_margin': 12620,  # 净利润
     'revenue': 12621,  # 税收
     # 'technology_import_cost': 技术引进费用
@@ -78,9 +77,32 @@ financial_code = {
     # 'internal_dev_input':其中：境内研发投,
 }
 
+financial_code = {
+    'year': 12137,  # 年度
+    'operating_income': 12138,  # 主营业收入
+    'net_margin': 12139,  # 净利润
+    'revenue': 12199,  # 税收
+    # 'technology_import_cost': 技术引进费用
+    # 'equipment_investment': 设备资金投入
+    # 'software_investment': 软硬件资金投入
+    'research': 12140,  # 研发投入
+    # 'user_id': 用户id
+    'user_name': 12170,  # 用户名称
+    # 'is_delete': 1删除 2未删除
+    # 'create_time': , # 创建时间
+    # 'update_time':
+    # 'paper_no': 12614,  # 证件号码
+    'total_income': 12210,  # 总收入
+    # 'total_business_income': 12212,  # 营业总收入
+    'high_product_income': 12212,  # 其中高品收入
+    'net_assets': 12196,  # 净资产
+    'internal_dev_input': 12200  # 其中：境内研发投,
+}
+
 project_code = {
     'project_name': 11790,  # 成功申报的项目数据
-    'year': 11791  # 年份
+    'year': 11791,  # 年份
+    'capital_limit': 12430  # 争取资金额度
 }
 
 project_map = {
@@ -112,6 +134,7 @@ def fix_project_info(p):
             p["project_name"] = project_map[m]["name"]
             p["level"] = project_map[m]["level"]
             p["window"] = project_map[m]["window"]
+            p["state"] = 2  # 所有状态设置为 立项通过
             p["project_type"] = project_map[m]["project_type"]
     return p
 
@@ -135,7 +158,7 @@ class JDConvert:
     @staticmethod
     def boardToString(code):
         c = str(code)
-        return sys_board[c] if c in sys_board else sys_board['5']
+        return sys_board[c] if c in sys_board else sys_board['0']
 
     @staticmethod
     def techToString(code):
@@ -162,29 +185,29 @@ class JDConvert:
         my["area_id_a"] = '\'%s\'' % JDConvert.areaCodeToName(ogg["AREA_ID_A_ABCDEF"])  # 所属地区省
         my["area_id"] = '\'%s\'' % JDConvert.areaCodeToName(ogg["AREA_ID_ABCDEF"])  # 所属地区
         my["is_legal_person"] = '\'是\'' if str(ogg["INDEPENTDENT_LEGAL_PERSON"]) == '1' else '\'否\''  # 是否独立法人
-        my["legal_person"] = '\'%s\'' % ogg["HQ_LEGAL_PERSON_C"]  # 法人
+        my["legal_person"] = '\'\'' if str(ogg["HQ_LEGAL_PERSON_C"]) == '0' else '\'%s\'' % ogg["HQ_LEGAL_PERSON_C"]  # 法人
         # my["legal_person_degree"] = ogg[""]     # 法人学历
-        my["legal_person_phone"] = '\'%s\'' % ogg["LEGAL_PERSON_TEL"]  # 法人手机
+        my["legal_person_phone"] = '\'\'' if str(ogg["LEGAL_PERSON_TEL"]) == '0' else '\'%s\'' % ogg["LEGAL_PERSON_TEL"]  # 法人手机
         # my["regist_capital"] = 0 if ogg["REGIST_CAPITAL_AC"] is None else ogg["REGIST_CAPITAL_AC"]  # 注册资本
         my["regist_capital"] = ogg["REGIST_CAPITAL_AC"]  # 注册资本
         my["regist_time"] = '\'%s\'' % ogg["REGIST_TIME_ABCE"] if ogg["REGIST_TIME_ABCE"] != 0 else 0  # 注册时间
         my["register_status"] = '\'%s\'' % JDConvert.companyRegStatusToString(ogg["REGISTER_STATUS"])  # 登记状态
-        my["addr"] = '\'%s\'' % ogg["ADDR_ABCDEF"]  # 通讯地址
+        my["addr"] = '\'\'' if str(ogg["ADDR_ABCDEF"]) == '0' else '\'%s\'' % ogg["ADDR_ABCDEF"]  # 通讯地址
         my["technology_field"] = '\'%s\'' % JDConvert.techToString(ogg["TECHNOLOGY_FIELD"])  # 技术领域
-        my["national_economy_industry"] = '\'\'' if ogg["NATIONAL_ECONOMY_INDUSTRY"]==0 else '\'%s\'' % ogg["NATIONAL_ECONOMY_INDUSTRY"]  # 国民经济行业
+        # my["national_economy_industry"] = '\'\'' if ogg["NATIONAL_ECONOMY_INDUSTRY"]==0 else '\'%s\'' % ogg["NATIONAL_ECONOMY_INDUSTRY"]  # 国民经济行业
         my["enterprise_attribute"] = '\'%s\'' % ogg["COMPANY_ATTRIBUTE"]  # 企业属性
         my["enterprise_scale"] = '\'%s\'' % ogg["COMPANY_SCALE"]  # 企业规模
         my["is_gauge"] = '\'是\'' if str(ogg["IS_GAUGE"]) == '1' else '\'否\''  # 规上企业0否1是
         my["credit_rating"] = '\'%s\'' % ogg["COMPANY_CREDIT_RATING"]  # 资信等级
         my["is_listed"] = '\'是\'' if str(ogg["IS_ON_LISTED"]) == '1' else '\'否\''  # 是否上市
         my["listing_sector"] = '\'%s\'' % JDConvert.boardToString(ogg["COMPANY_LISTING_SECTOR"])  # 其中上市板块
-        my["master_project"] = '\'%s\'' % ogg["MAIN_PRODUCT_A"]  # 主营业务及产品
+        my["master_project"] = '\'\'' if str(ogg["MAIN_PRODUCT_A"]) == '0' else '\'%s\'' % ogg["MAIN_PRODUCT_A"]  # 主营业务及产品
         # my["market_guonei"] = ogg[""]           # 产品国内市场份额
         # my["market_guowai"] = ogg[""]           # 产品国外市场份额
         # my["sources"] = ogg[""]                 # 信息来源
         # my["core_technology_sources"] = ogg[""] # 核心技术来源
         profile_str = str(ogg["COMPANY_PROFILE"])
-        my["enterprise_info"] = '\'%s\'' % (profile_str[0:180])  # 企业介绍
+        my["enterprise_info"] = '\'\'' if str(ogg["COMPANY_PROFILE"]) == '0' else '\'%s\'' % (profile_str[0:180])  # 企业介绍
         my["open_bank"] = '\'\'' if ogg["BANK_OPEN_ABCDEF"] == 0 else '\'%s\'' % ogg["BANK_OPEN_ABCDEF"]  # 开户行
         my["open_bank_no"] = '\'\'' if ogg["BANK_ACCOUNT_ABCDEF"] == 0 else '\'%s\'' % ogg["BANK_ACCOUNT_ABCDEF"]  # 开户账号
         # my["tax_no"] = ogg[""]                      # 税务登记证号
@@ -224,9 +247,10 @@ class JDConvert:
             "name": '\'%s\'' % ogg["CONTACTS_ABCDEF"],
             "mobile": '\'%s\'' % ogg["MOVE_TEL_ABCDEF"],
             "duty": '\'%s\'' % "联系人",  # 职务 varchar50
+            "type": '\'%s\'' % "项目联系人",  # 职务 varchar50
             "email": '\'%s\'' % ogg["EMAIL_ABCDEF"],  # 职务 varchar50
             "is_delete": 2,
-            "user_id": ogg["USER_ID"],  # 用户id bigint20
+            "user_id": ogg["ID"],  # 用户id bigint20
             "user_name": '\'%s\'' % ogg["USER_NAME_ABCDEF"],  # 用户名称 - 企业名称 varchr 100
             "paper_no": '\'%s\'' % ogg["PAPER_NO_ABCDEF"]  # 证件号码 varchar 100
         }
@@ -235,9 +259,10 @@ class JDConvert:
             "name": '\'%s\'' % ogg["FINANCE_CONTACT"],
             "mobile": '\'%s\'' % ogg["FINANCE_MOBEL"],
             "duty": '\'%s\'' % "财务",  # 职务 varchar50
+            "type": '\'%s\'' % "财务联系人",  # 职务 varchar50
             "email": '\'%s\'' % ogg["FINANCE_EMAIL"],  # 职务 varchar50
             "is_delete": 2,
-            "user_id": ogg["USER_ID"],  # 用户id bigint20
+            "user_id": ogg["ID"],  # 用户id bigint20
             "user_name": '\'%s\'' % ogg["USER_NAME_ABCDEF"],  # 用户名称 - 企业名称 varchr 100
             "paper_no": '\'%s\'' % ogg["PAPER_NO_ABCDEF"]  # 证件号码 varchar 100
         }
@@ -366,7 +391,6 @@ class JDConvert:
 
     @staticmethod
     def ogg2mysql_project(ogg):
-        print("inside call")
         try:
             orc = JDCOracle()
             ret = orc.dynTableQuery(ogg['T_FIELD_NAME_ID'], ogg['T_TARGET_FORM_USER_ID'])
@@ -374,8 +398,10 @@ class JDConvert:
         except Exception as e:
             print(e)
         my = {}
+        final_year = 0
         for d in ret:
             k = JDConvert.my_project_col_from_oracle_code(d['T_FIELD_NAME_ID'])
+
             if k is not None:
                 if d['VALUE'] is not None:
                     my[k] = '\'%s\'' % d['VALUE']
@@ -387,11 +413,14 @@ class JDConvert:
                     y = x if x > 0 else 0
                     my['year'] = '\'%s\'' % y
             # 项目表中的 year 字段
-            if k == 'year' and d['VALUE'] is not None:
+            if k == 'year' and (d['VALUE'] is not None):
                 try:
                     my['year'] = int(d['VALUE'])
+                    final_year = int(d['VALUE'])
                 except:
                     continue
+        if final_year != 0:
+            my['year'] = final_year
         my = fix_project_info(my)
         return my
 
@@ -401,6 +430,7 @@ class JDConvert:
         ret = orc.dynTableQuery(ogg['T_FIELD_NAME_ID'], ogg['T_TARGET_FORM_USER_ID'])
         orc.c()
         my = {}
+        final_year = 0
         for d in ret:
             k = JDConvert.my_financial_col_from_oracle_code(d['T_FIELD_NAME_ID'])
             if k is not None:
@@ -432,10 +462,13 @@ class JDConvert:
             if k == 'year' and d['VALUE'] is not None:
                 try:
                     my['year'] = int(d['VALUE'])
+                    final_year = int(d['VALUE'])
                 except:
                     continue
             # 解决mysql 逻辑删除问题
             my['is_delete'] = 2
+        if final_year != 0:
+            my['year'] = final_year
         return my
 
     @staticmethod
@@ -444,6 +477,7 @@ class JDConvert:
         ret = orc.dynTableQuery(ogg['T_FIELD_NAME_ID'], ogg['T_TARGET_FORM_USER_ID'])
         orc.c()
         my = {}
+        final_year = 0
         for d in ret:
             k = JDConvert.my_intellectual_col_from_oracle_code(d['T_FIELD_NAME_ID'])
             if k is not None:
@@ -460,8 +494,11 @@ class JDConvert:
             if k == 'year' and d['VALUE'] is not None:
                 try:
                     my['year'] = int(d['VALUE'])
+                    final_year = int(d['VALUE'])
                 except:
                     continue
+        if final_year != 0:
+            my['year'] = final_year
         return my
 
     @staticmethod
@@ -491,6 +528,6 @@ class JDConvert:
     @staticmethod
     def my_project_col_from_oracle_code(int_code):
         for k in project_code.keys():
-            if project_code[k] == int_code:
+            if str(project_code[k]) == str(int_code):
                 return k
         return None

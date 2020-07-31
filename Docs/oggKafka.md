@@ -210,7 +210,7 @@ MAP WUXIHUISHAN_YUTIAOSHI.*, TARGET WUXIHUISHAN_YUTIAOSHI.*;
 
 编辑对应的kafka配置：
 ```bash
- # vi rekafka.prm
+ # vi kafka.props
 gg.handlerlist=kafkahandler
 gg.handler.kafkahandler.type=kafka
 gg.handler.kafkahandler.KafkaProducerConfigFile=custom_kafka_producer.properties
