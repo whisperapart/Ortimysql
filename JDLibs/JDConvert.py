@@ -94,6 +94,7 @@ financial_code = {
     # 'paper_no': 12614,  # 证件号码
     'total_income': 12210,  # 总收入
     # 'total_business_income': 12212,  # 营业总收入
+    # 'total_business_income': 12138,  # 营业总收入
     'high_product_income': 12212,  # 其中高品收入
     'net_assets': 12196,  # 净资产
     'internal_dev_input': 12200  # 其中：境内研发投,
@@ -175,9 +176,9 @@ class JDConvert:
         my = {}
         my['id'] = int(ogg["ID"])  # ID
         my['user_id'] = ogg["USER_ID"]  # 用户id
-        my['user_name'] = '\'%s\'' % ogg["USER_NAME_ABCDEF"]  # 用户名称
+        my['user_name'] = '\'\'' if ogg["USER_NAME_ABCDEF"]==0 else '\'%s\'' % ogg["USER_NAME_ABCDEF"]  # 用户名称
         my["user_type"] = '\'%s\'' % ogg["USER_TYPE_ABCDEF"]  # 用户类型
-        my["paper_no"] = '\'%s\'' % ogg["PAPER_NO_ABCDEF"]  # 证件号码
+        my["paper_no"] = '\'\'' if ogg["PAPER_NO_ABCDEF"]==0 else '\'%s\'' % ogg["PAPER_NO_ABCDEF"]  # 证件号码
         my["enterprise_nature"] = '\'%s\'' % JDConvert.companyTypeToString(ogg["COMPANY_TYPE_A"])  # 企业性质
         my["paper_type"] = 0 if ogg["PAPER_TYPE_ABCDEF"] is None else ogg["PAPER_TYPE_ABCDEF"]  # 证件类型
         my["area_id_c"] = '\'%s\'' % JDConvert.areaCodeToName(ogg["AREA_ID_C_ABCDEF"])  # 所属地区县
@@ -244,27 +245,27 @@ class JDConvert:
 
         contact = {
             "id": "%s%s" % (ogg["USER_ID"], "01"),
-            "name": '\'%s\'' % ogg["CONTACTS_ABCDEF"],
-            "mobile": '\'%s\'' % ogg["MOVE_TEL_ABCDEF"],
+            "name": '\'\'' if ogg["CONTACTS_ABCDEF"] == 0 else '\'%s\'' % ogg["CONTACTS_ABCDEF"],
+            "mobile": '\'\'' if ogg["MOVE_TEL_ABCDEF"] == 0 else '\'%s\'' % ogg["MOVE_TEL_ABCDEF"],
             "duty": '\'%s\'' % "联系人",  # 职务 varchar50
             "type": '\'%s\'' % "项目联系人",  # 职务 varchar50
-            "email": '\'%s\'' % ogg["EMAIL_ABCDEF"],  # 职务 varchar50
+            "email": '\'\'' if str(ogg["EMAIL_ABCDEF"]) == '0' else '\'%s\'' % ogg["EMAIL_ABCDEF"],  # 职务 varchar50
             "is_delete": 2,
             "user_id": ogg["ID"],  # 用户id bigint20
-            "user_name": '\'%s\'' % ogg["USER_NAME_ABCDEF"],  # 用户名称 - 企业名称 varchr 100
-            "paper_no": '\'%s\'' % ogg["PAPER_NO_ABCDEF"]  # 证件号码 varchar 100
+            "user_name": '\'\'' if ogg["USER_NAME_ABCDEF"] == 0 else '\'%s\'' % ogg["USER_NAME_ABCDEF"],  # 用户名称 - 企业名称 varchr 100
+            "paper_no": '\'\'' if ogg["PAPER_NO_ABCDEF"] == 0 else '\'%s\'' % ogg["PAPER_NO_ABCDEF"]  # 证件号码 varchar 100
         }
         financial = {
             "id": "%s%s" % (ogg["USER_ID"], "02"),
-            "name": '\'%s\'' % ogg["FINANCE_CONTACT"],
-            "mobile": '\'%s\'' % ogg["FINANCE_MOBEL"],
+            "name": '\'\'' if ogg["FINANCE_CONTACT"] == 0 else '\'%s\'' % ogg["FINANCE_CONTACT"],
+            "mobile": '\'\'' if ogg["FINANCE_MOBEL"] == 0 else '\'%s\'' % ogg["FINANCE_MOBEL"],
             "duty": '\'%s\'' % "财务",  # 职务 varchar50
             "type": '\'%s\'' % "财务联系人",  # 职务 varchar50
-            "email": '\'%s\'' % ogg["FINANCE_EMAIL"],  # 职务 varchar50
+            "email": '\'\'' if str(ogg["FINANCE_EMAIL"]) == '0' else '\'%s\'' % ogg["FINANCE_EMAIL"],  # 职务 varchar50
             "is_delete": 2,
             "user_id": ogg["ID"],  # 用户id bigint20
-            "user_name": '\'%s\'' % ogg["USER_NAME_ABCDEF"],  # 用户名称 - 企业名称 varchr 100
-            "paper_no": '\'%s\'' % ogg["PAPER_NO_ABCDEF"]  # 证件号码 varchar 100
+            "user_name": '\'\'' if ogg["USER_NAME_ABCDEF"] == 0 else '\'%s\'' % ogg["USER_NAME_ABCDEF"],  # 用户名称 - 企业名称 varchr 100
+            "paper_no": '\'\'' if ogg["PAPER_NO_ABCDEF"] == 0 else '\'%s\'' % ogg["PAPER_NO_ABCDEF"]  # 证件号码 varchar 100
         }
         my = []
         if contact['name'] != '':
@@ -458,6 +459,9 @@ class JDConvert:
                     # update time
                     my['update_time'] = '\'%s\'' % d['UPDATE_TIME'] if '\'%s\'' % d['UPDATE_TIME'] != 0 else 0
                     my['create_time'] = '\'%s\'' % d['CREATE_TIME'] if '\'%s\'' % d['CREATE_TIME'] != 0 else 0
+                    # 临时解决方案，处理惠山数据问题
+                    if k == 'operating_income':
+                        my['total_business_income'] = dv
             # 财务表中的 year 字段
             if k == 'year' and d['VALUE'] is not None:
                 try:
