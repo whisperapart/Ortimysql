@@ -3,6 +3,6 @@ docutils==0.16
 imageio==2.8.0
 kafka-python==2.0.1
 lockfile==0.12.2
-numpy==1.19.0
+numpy==1.22.0
 Pillow==7.1.2
 PyMySQL==0.9.3
