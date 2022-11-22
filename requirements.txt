@@ -4,5 +4,5 @@ imageio==2.8.0
 kafka-python==2.0.1
 lockfile==0.12.2
 numpy==1.19.0
-Pillow==7.1.2
+Pillow==9.3.0
 PyMySQL==0.9.3
